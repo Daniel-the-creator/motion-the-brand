@@ -33,3 +33,4 @@ export default function Marquee({ items = DEFAULT_ITEMS, speed = 28, dark = fals
     </div>
   );
 }
+

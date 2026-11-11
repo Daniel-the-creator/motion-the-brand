@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useCatalog } from '../context/CatalogContext';
 import ProductGrid from '../components/product/ProductGrid';
 import SafeImage from '../components/ui/SafeImage';
@@ -16,13 +16,29 @@ export default function CollectionDetail() {
 
   return (
     <>
-      <section className="relative flex min-h-[60vh] items-end overflow-hidden">
-        <SafeImage src={collection.coverImage} alt="" label={collection.name} loading="eager" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/30" />
-        <div className="container-x relative pb-12 pt-40">
-          <p className="eyebrow mb-3 !text-accent">Collection</p>
-          <h1 className="display text-5xl sm:text-7xl md:text-9xl">{collection.name}</h1>
-          <p className="mt-5 max-w-xl text-accent">{collection.description}</p>
+      <section className="border-b border-line bg-surface pt-32 pb-16 md:pt-40 md:pb-20">
+        <div className="container-x grid items-center gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <nav aria-label="Breadcrumb" className="mb-4 text-xs uppercase tracking-[0.2em] text-muted">
+              <Link to="/collections" className="hover:text-white">Collections</Link>
+              <span className="mx-2">/</span>
+              <span className="text-white">{collection.name}</span>
+            </nav>
+            <p className="eyebrow mb-3 !text-accent">Curated Drop // {items.length} {items.length === 1 ? 'Piece' : 'Pieces'}</p>
+            <h1 className="display text-5xl sm:text-7xl md:text-8xl">{collection.name}</h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-accent">{collection.description}</p>
+          </div>
+          <div className="lg:col-span-5">
+            <div className="overflow-hidden border border-line bg-white p-4">
+              <SafeImage
+                src={collection.coverImage}
+                alt={collection.name}
+                label={collection.name}
+                loading="eager"
+                className="aspect-[16/10] w-full object-contain"
+              />
+            </div>
+          </div>
         </div>
       </section>
       <div className="container-x pt-16">
@@ -33,4 +49,3 @@ export default function CollectionDetail() {
     </>
   );
 }
-

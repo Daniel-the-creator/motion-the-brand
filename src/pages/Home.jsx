@@ -1,4 +1,6 @@
 import Hero from '../components/home/Hero';
+import Marquee from '../components/ui/Marquee';
+import DropLookbook from '../components/home/DropLookbook';
 import NewArrivals from '../components/home/NewArrivals';
 import PromoBanner from '../components/home/PromoBanner';
 import CollectionsPreview from '../components/home/CollectionsPreview';
@@ -14,6 +16,8 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <Marquee />
+      <DropLookbook />
       <NewArrivals />
       <PromoBanner />
       <CollectionsPreview />
@@ -27,4 +31,3 @@ export default function Home() {
     </>
   );
 }
-

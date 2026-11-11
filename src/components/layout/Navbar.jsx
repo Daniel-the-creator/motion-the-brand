@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useScroll } from 'framer-motion';
 import { Menu, Search, ShoppingBag, X } from 'lucide-react';
 import { LOGO_SRC } from '../../config/images';
 import { SITE } from '../../config/site';
@@ -9,8 +9,9 @@ import { useUI } from '../../context/UIContext';
 
 const LINKS = [
   { to: '/', label: 'Home', end: true },
+  { to: '/collections/drop-001', label: 'Drop 001', highlight: true },
   { to: '/shop', label: 'Shop' },
-  { to: '/collections', label: 'Collections' },
+  { to: '/collections', label: 'Collections', end: true },
   { to: '/about', label: 'About' },
 ];
 
@@ -18,6 +19,7 @@ export default function Navbar() {
   const { totalQuantity, openCart } = useCart();
   const { openSearch } = useUI();
   const { pathname } = useLocation();
+  const { scrollYProgress } = useScroll();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -45,12 +47,21 @@ export default function Navbar() {
             <img src={LOGO_SRC} alt={SITE.name} className="h-10 w-auto md:h-12" />
           </Link>
 
-          <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-10 md:flex" aria-label="Primary">
+          <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-9 md:flex" aria-label="Primary">
             {LINKS.map((l) => (
-              <NavLink key={l.to} to={l.to} end={l.end}
-                className={({ isActive }) => `group relative py-2 text-[0.72rem] uppercase tracking-[0.25em] transition-colors ${isActive ? 'text-white' : 'text-muted hover:text-white'}`}>
+              <NavLink
+                key={l.to}
+                to={l.to}
+                end={l.end}
+                className={({ isActive }) =>
+                  `group relative flex items-center gap-1.5 py-2 text-[0.72rem] uppercase tracking-[0.25em] transition-colors ${
+                    isActive ? 'text-white' : l.highlight ? 'text-accent hover:text-white' : 'text-muted hover:text-white'
+                  }`
+                }
+              >
                 {({ isActive }) => (
                   <>
+                    {l.highlight && <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />}
                     {l.label}
                     <span className={`absolute inset-x-0 -bottom-0.5 h-px origin-left bg-white transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
                   </>
@@ -77,6 +88,12 @@ export default function Navbar() {
             </button>
           </div>
         </div>
+
+        {/* Live Scroll Progress Line */}
+        <motion.div
+          style={{ scaleX: scrollYProgress }}
+          className="h-[1.5px] w-full origin-left bg-white/80"
+        />
       </header>
 
       <AnimatePresence>
@@ -90,8 +107,8 @@ export default function Navbar() {
           >
             <nav className="flex flex-col gap-2" aria-label="Mobile">
               {LINKS.map((l, i) => (
-                <motion.div key={l.to} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.07, duration: 0.5 }}>
-                  <Link to={l.to} className="display block py-2 text-6xl">{l.label}</Link>
+                <motion.div key={l.to} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 + i * 0.06, duration: 0.5 }}>
+                  <Link to={l.to} className="display block py-2 text-5xl">{l.label}</Link>
                 </motion.div>
               ))}
             </nav>
@@ -108,4 +125,3 @@ export default function Navbar() {
     </>
   );
 }
-

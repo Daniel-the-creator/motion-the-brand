@@ -19,8 +19,8 @@ export default function About() {
       </Reveal>
 
       {imgs[0] && (
-        <Reveal className="mt-16 md:mt-24">
-          <SafeImage src={imgs[0]} alt="MOTION campaign" label="Campaign" className="aspect-[16/9] w-full object-cover" loading="eager" />
+        <Reveal className="mt-16 border border-line bg-white p-4 md:mt-24 md:p-8">
+          <SafeImage src={imgs[0]} alt="MOTION campaign" label="Campaign" className="aspect-[16/9] w-full object-contain" loading="eager" />
         </Reveal>
       )}
 
@@ -47,7 +47,9 @@ export default function About() {
       {imgs.length > 1 && (
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {imgs.slice(1).map((src, i) => (
-            <Reveal key={i} delay={i * 0.1}><SafeImage src={src} alt="MOTION campaign" label="Campaign" className="aspect-[4/5] w-full object-cover" /></Reveal>
+            <Reveal key={i} delay={i * 0.1} className="border border-line bg-white p-4">
+              <SafeImage src={src} alt="MOTION campaign" label="Campaign" className="aspect-[16/10] w-full object-contain" />
+            </Reveal>
           ))}
         </div>
       )}
@@ -59,4 +61,3 @@ export default function About() {
     </div>
   );
 }
-
