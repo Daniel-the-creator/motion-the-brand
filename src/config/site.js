@@ -25,4 +25,17 @@ export const SITE = {
 
   // Show a "low stock" hint at or below this number
   lowStockThreshold: 5,
+
+  // Authorized admin credentials (can also be overridden via VITE_ADMIN_EMAIL / VITE_ADMIN_PASSWORD in .env)
+  admin: {
+    emails: [
+      (import.meta.env.VITE_ADMIN_EMAIL || 'danielilesanmi@gmail.com').toLowerCase(),
+      'danielilesanmi@gmail.com',
+      'danieililesanmi@gmail.com',
+      'danielilesanmi04@gmail.com',
+      'danieililesanmi04@gmail.com',
+      'admin@motion.com',
+    ],
+    defaultPassword: import.meta.env.VITE_ADMIN_PASSWORD || 'MotionAdmin2026!',
+  },
 };

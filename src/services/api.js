@@ -7,9 +7,17 @@
  */
 import { supabase, isSupabaseConfigured, STORAGE_BUCKET } from '../lib/supabase';
 import { seedProducts, seedCategories, seedCollections, seedContent } from '../data/seed';
+import { SITE } from '../config/site';
 import { slugify, uid } from '../utils/format';
 
-const LOCAL_KEY = 'motion_demo_db_v4';
+const LOCAL_KEY = 'motion_store_db_v5';
+const AUTH_SESSION_KEY = 'motion_admin_session_v1';
+const AUTH_PWD_KEY = 'motion_admin_pwd_v1';
+const authListeners = new Set();
+
+function notifyAuth(user) {
+  authListeners.forEach((cb) => cb(user));
+}
 
 /* ---------- row mapping (snake_case DB <-> camelCase app) ---------- */
 const productFromRow = (r) => ({
@@ -209,32 +217,102 @@ export async function resetDemoData() {
 }
 
 /* ---------- auth ---------- */
+function getExpectedPassword() {
+  try {
+    return localStorage.getItem(AUTH_PWD_KEY) || SITE.admin.defaultPassword;
+  } catch {
+    return SITE.admin.defaultPassword;
+  }
+}
+
 export async function signIn(email, password) {
-  if (!isSupabaseConfigured) throw new Error('Supabase is not configured. See README.');
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw new Error(error.message);
+  const normalizedEmail = (email || '').trim().toLowerCase();
+  const cleanPassword = (password || '').trim();
+  if (!normalizedEmail || !cleanPassword) {
+    throw new Error('Please enter both your admin email and password.');
+  }
+
+  if (isSupabaseConfigured) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password: cleanPassword });
+    if (error) throw new Error(error.message);
+    return data.user;
+  }
+
+  const isAllowedEmail = SITE.admin.emails.includes(normalizedEmail);
+  const expectedPassword = getExpectedPassword();
+  if (!isAllowedEmail) {
+    throw new Error('This email is not registered as an administrator.');
+  }
+  if (cleanPassword !== expectedPassword && password !== expectedPassword) {
+    throw new Error('Incorrect admin password.');
+  }
+
+  const sessionUser = {
+    id: 'admin-local',
+    email: normalizedEmail,
+    role: 'admin',
+    signedInAt: new Date().toISOString(),
+  };
+  sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(sessionUser));
+  notifyAuth(sessionUser);
+  return sessionUser;
 }
 
 export async function signOut() {
+  sessionStorage.removeItem(AUTH_SESSION_KEY);
+  notifyAuth(null);
   if (isSupabaseConfigured) await supabase.auth.signOut();
 }
 
-/** Returns true if the current session belongs to a row in admin_users. */
+export async function updateAdminPassword(currentPassword, newPassword) {
+  if (!newPassword || newPassword.length < 6) {
+    throw new Error('New password must be at least 6 characters.');
+  }
+  if (isSupabaseConfigured) {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw new Error(error.message);
+    return;
+  }
+  const expected = getExpectedPassword();
+  if (currentPassword !== expected) {
+    throw new Error('Current password is incorrect.');
+  }
+  localStorage.setItem(AUTH_PWD_KEY, newPassword);
+}
+
+/** Returns true if the current session belongs to an authorized admin. */
 export async function checkIsAdmin(user) {
   if (!user) return false;
+  if (!isSupabaseConfigured) {
+    return SITE.admin.emails.includes((user.email || '').toLowerCase());
+  }
   const { data, error } = await supabase.from('admin_users').select('user_id').eq('user_id', user.id).maybeSingle();
-  return !error && !!data;
+  return (!error && !!data) || SITE.admin.emails.includes((user.email || '').toLowerCase());
 }
 
 export function onAuthChange(callback) {
-  if (!isSupabaseConfigured) return () => {};
-  const { data } = supabase.auth.onAuthStateChange((_e, session) => callback(session?.user ?? null));
-  return () => data.subscription.unsubscribe();
+  authListeners.add(callback);
+  let unsubSupabase = () => {};
+  if (isSupabaseConfigured) {
+    const { data } = supabase.auth.onAuthStateChange((_e, session) => callback(session?.user ?? null));
+    unsubSupabase = () => data.subscription.unsubscribe();
+  }
+  return () => {
+    authListeners.delete(callback);
+    unsubSupabase();
+  };
 }
 
 export async function getCurrentUser() {
-  if (!isSupabaseConfigured) return null;
-  const { data } = await supabase.auth.getSession();
-  return data.session?.user ?? null;
+  if (isSupabaseConfigured) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.user) return data.session.user;
+  }
+  try {
+    const raw = sessionStorage.getItem(AUTH_SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 }
 

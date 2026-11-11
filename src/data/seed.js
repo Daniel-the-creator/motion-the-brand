@@ -171,7 +171,7 @@ export const seedContent = {
   hero: {
     image: placeholder('Campaign Hero', 1, '16:9'),
     eyebrow: 'DROP 001 / CAMPAIGN',
-    headline: 'CREATING PATH TO MOVE.',
+    headline: 'BUILT TO MOVE.',
     subtext: 'Streetwear designed for those who refuse to stand still.',
   },
   promo: {
