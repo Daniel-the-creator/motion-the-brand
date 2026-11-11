@@ -89,7 +89,7 @@ export default function Hero() {
                 <Sparkles className="h-3 w-3 text-white" /> {hero?.eyebrow || 'DROP 001 / LIVE'}
               </span>
               <p className="mt-1.5 text-[0.65rem] uppercase tracking-[0.24em] text-muted">
-                LAGOS · HEAVYWEIGHT LUXURY STREETWEAR
+                 HEAVYWEIGHT LUXURY STREETWEAR
               </p>
             </motion.div>
           </div>
@@ -131,7 +131,7 @@ export default function Hero() {
             className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-line pt-6"
           >
             <div>
-              <p className="display text-2xl md:text-3xl">280GSM</p>
+              <p className="display text-2xl md:text-3xl">350GSM</p>
               <p className="mt-1 text-[0.65rem] uppercase tracking-[0.2em] text-muted">Heavyweight Cotton</p>
             </div>
             <div>

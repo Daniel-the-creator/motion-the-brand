@@ -18,7 +18,7 @@ const ACCORDION_ITEMS = [
   {
     id: 'fabric',
     title: 'Fabric & Fit Specifications',
-    body: '280gsm heavyweight combed cotton. Engineered with a relaxed boxy silhouette, dropped shoulders, and a high-density ribbed collar that holds its shape wear after wear.',
+    body: '350gsm heavyweight combed cotton. Engineered with a relaxed boxy silhouette, dropped shoulders, and a high-density ribbed collar that holds its shape wear after wear.',
   },
   {
     id: 'care',
