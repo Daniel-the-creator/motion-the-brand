@@ -185,15 +185,15 @@ export default function ProductCard({ product, index = 0 }) {
       </div>
 
       {/* Product Info + Interactive Color Swatches */}
-      <div className="mt-3.5 space-y-1.5">
-        <div className="flex items-start justify-between gap-3">
+      <div className="mt-3 space-y-1.5">
+        <div className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
           <Link
             to={`/product/${product.slug}`}
-            className="text-sm font-medium uppercase tracking-wide transition-colors hover:text-accent"
+            className="line-clamp-1 text-xs font-medium uppercase tracking-wide transition-colors hover:text-accent sm:text-sm"
           >
             {product.name}
           </Link>
-          <p className="shrink-0 text-sm font-medium text-accent">{formatPrice(product.price)}</p>
+          <p className="shrink-0 text-xs font-medium text-accent sm:text-sm">{formatPrice(product.price)}</p>
         </div>
 
         <div className="flex items-center justify-between gap-2 pt-0.5">
@@ -219,7 +219,7 @@ export default function ProductCard({ product, index = 0 }) {
             </div>
           )}
           {product.sizes.length > 0 && (
-            <p className="text-[0.65rem] tracking-[0.15em] text-muted">{product.sizes.join(' · ')}</p>
+            <p className="hidden text-[0.62rem] tracking-[0.15em] text-muted sm:block">{product.sizes.join(' · ')}</p>
           )}
         </div>
       </div>

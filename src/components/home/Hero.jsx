@@ -67,34 +67,34 @@ export default function Hero() {
         MOTION DROP 001
       </div>
 
-      <div className="container-x relative z-10 grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
+      <div className="container-x relative z-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-10">
         {/* Left column: Campaign Editorial Copy */}
-        <div className="lg:col-span-7">
-          <div className="mb-6 flex items-center gap-4 md:mb-8">
+        <div className="min-w-0 lg:col-span-7">
+          <div className="mb-6 flex items-center gap-3 sm:gap-4 md:mb-8">
             <motion.img
               src={LOGO_SRC}
               alt={SITE.name}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.9 }}
-              className="h-14 w-auto md:h-20"
+              className="h-12 w-auto shrink-0 sm:h-14 md:h-20"
             />
             <motion.div
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
-              className="border-l border-line pl-4"
+              className="min-w-0 border-l border-line pl-3 sm:pl-4"
             >
-              <span className="inline-flex items-center gap-1.5 border border-line bg-surface px-3 py-1 text-[0.62rem] uppercase tracking-[0.28em] text-accent">
-                <Sparkles className="h-3 w-3 text-white" /> {hero?.eyebrow || 'DROP 001 / LIVE'}
+              <span className="inline-flex flex-wrap items-center gap-1.5 border border-line bg-surface px-2.5 py-1 text-[0.58rem] uppercase tracking-[0.22em] text-accent sm:px-3 sm:text-[0.62rem] sm:tracking-[0.28em]">
+                <Sparkles className="h-3 w-3 shrink-0 text-white" /> {hero?.eyebrow || 'DROP 001 / LIVE'}
               </span>
-              <p className="mt-1.5 text-[0.65rem] uppercase tracking-[0.24em] text-muted">
-                 HEAVYWEIGHT LUXURY STREETWEAR
+              <p className="mt-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-muted sm:text-[0.65rem] sm:tracking-[0.24em]">
+                HEAVYWEIGHT LUXURY STREETWEAR
               </p>
             </motion.div>
           </div>
 
-          <h1 className="display text-[clamp(3.3rem,10.5vw,9.2rem)]">
+          <h1 className="display text-[clamp(2.75rem,11vw,9.2rem)]">
             {lines.map((l, i) => (
               <MaskLine key={l} delay={0.35 + i * 0.12}>
                 {l}
@@ -106,7 +106,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.85, duration: 0.8, ease }}
-            className="mt-6 max-w-lg text-base leading-relaxed text-accent md:text-lg"
+            className="mt-5 max-w-lg text-sm leading-relaxed text-accent sm:mt-6 sm:text-base md:text-lg"
           >
             {hero?.subtext}
           </motion.p>
@@ -115,10 +115,10 @@ export default function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.0, duration: 0.8, ease }}
-            className="mt-9 flex flex-col gap-3 sm:flex-row"
+            className="mt-8 flex flex-col gap-3 sm:mt-9 sm:flex-row"
           >
-            <Button to="/collections/drop-001">Explore Drop 001</Button>
-            <Button to="/shop" variant="outline">
+            <Button to="/collections/drop-001" className="w-full sm:w-auto">Explore Drop 001</Button>
+            <Button to="/shop" variant="outline" className="w-full sm:w-auto">
               Shop All Pieces
             </Button>
           </motion.div>
@@ -128,19 +128,19 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2, duration: 0.9 }}
-            className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-line pt-6"
+            className="mt-10 grid w-full max-w-lg grid-cols-3 gap-3 border-t border-line pt-6 sm:mt-12 sm:gap-6"
           >
-            <div>
-              <p className="display text-2xl md:text-3xl">350GSM</p>
-              <p className="mt-1 text-[0.65rem] uppercase tracking-[0.2em] text-muted">Heavyweight Cotton</p>
+            <div className="min-w-0">
+              <p className="display text-xl sm:text-2xl md:text-3xl">350GSM</p>
+              <p className="mt-1 text-[0.58rem] uppercase tracking-[0.14em] text-muted sm:text-[0.65rem] sm:tracking-[0.2em]">Heavyweight Cotton</p>
             </div>
-            <div>
-              <p className="display text-2xl md:text-3xl">DROP 001</p>
-              <p className="mt-1 text-[0.65rem] uppercase tracking-[0.2em] text-muted">Limited Edition Run</p>
+            <div className="min-w-0">
+              <p className="display text-xl sm:text-2xl md:text-3xl">DROP 001</p>
+              <p className="mt-1 text-[0.58rem] uppercase tracking-[0.14em] text-muted sm:text-[0.65rem] sm:tracking-[0.2em]">Limited Edition Run</p>
             </div>
-            <div>
-              <p className="display text-2xl md:text-3xl">24/7</p>
-              <p className="mt-1 text-[0.65rem] uppercase tracking-[0.2em] text-muted">WhatsApp Concierge</p>
+            <div className="min-w-0">
+              <p className="display text-xl sm:text-2xl md:text-3xl">24/7</p>
+              <p className="mt-1 text-[0.58rem] uppercase tracking-[0.14em] text-muted sm:text-[0.65rem] sm:tracking-[0.2em]">WhatsApp Concierge</p>
             </div>
           </motion.div>
         </div>
@@ -153,9 +153,9 @@ export default function Hero() {
             transition={{ delay: 0.55, duration: 0.9, ease }}
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
-            className="lg:col-span-5"
+            className="w-full min-w-0 lg:col-span-5"
           >
-            <div className="relative mx-auto max-w-md border border-line bg-surface p-3 md:p-4">
+            <div className="relative mx-auto w-full max-w-md border border-line bg-surface p-3 md:p-4">
               {/* Top status bar inside showcase frame */}
               <div className="mb-3 flex items-center justify-between text-[0.62rem] uppercase tracking-[0.24em] text-muted">
                 <span>

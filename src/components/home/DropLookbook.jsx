@@ -43,9 +43,9 @@ export default function DropLookbook() {
         </Link>
       </Reveal>
 
-      <div className="grid border border-line bg-surface lg:grid-cols-12">
+      <div className="grid grid-cols-1 border border-line bg-surface lg:grid-cols-12">
         {/* Left: Interactive Piece Selector List */}
-        <div className="divide-y divide-line border-b border-line lg:col-span-5 lg:border-b-0 lg:border-r">
+        <div className="min-w-0 divide-y divide-line border-b border-line lg:col-span-5 lg:border-b-0 lg:border-r">
           {dropItems.map((item, idx) => {
             const isSelected = idx === selectedIdx;
             return (
@@ -53,24 +53,24 @@ export default function DropLookbook() {
                 key={item.id}
                 type="button"
                 onClick={() => selectProduct(idx)}
-                className={`group flex w-full items-center justify-between gap-4 p-5 text-left transition-colors md:p-6 ${
+                className={`group flex w-full min-w-0 items-center justify-between gap-3 p-4 text-left transition-colors sm:gap-4 sm:p-5 md:p-6 ${
                   isSelected ? 'bg-white text-ink' : 'hover:bg-card text-white'
                 }`}
               >
-                <div className="flex items-center gap-4 min-w-0">
+                <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
                   <span
-                    className={`font-mono text-xs tracking-widest ${
+                    className={`shrink-0 font-mono text-xs tracking-widest ${
                       isSelected ? 'text-ink/60' : 'text-muted'
                     }`}
                   >
                     0{idx + 1}
                   </span>
-                  <div className="h-14 w-12 shrink-0 overflow-hidden border border-line bg-white">
+                  <div className="h-12 w-10 shrink-0 overflow-hidden border border-line bg-white sm:h-14 sm:w-12">
                     <SafeImage src={item.images[0]} alt="" className="h-full w-full object-contain" />
                   </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold uppercase tracking-wider">{item.name}</p>
-                    <p className={`mt-0.5 text-xs ${isSelected ? 'text-ink/75' : 'text-muted'}`}>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold uppercase tracking-wider sm:text-sm">{item.name}</p>
+                    <p className={`mt-0.5 truncate text-[0.7rem] sm:text-xs ${isSelected ? 'text-ink/75' : 'text-muted'}`}>
                       {formatPrice(item.price)} · {item.colors.map((c) => c.name).join(' / ')}
                     </p>
                   </div>
@@ -86,21 +86,21 @@ export default function DropLookbook() {
         </div>
 
         {/* Right: Split Stage & Angle Switcher */}
-        <div className="flex flex-col justify-between p-6 md:p-10 lg:col-span-7">
+        <div className="flex min-w-0 flex-col justify-between p-4 sm:p-6 md:p-10 lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-            <div>
+            <div className="min-w-0">
               <span className="eyebrow">Selected Piece // 0{selectedIdx + 1}</span>
-              <h3 className="display mt-1 text-2xl md:text-4xl">{active.name}</h3>
+              <h3 className="display mt-1 text-xl sm:text-2xl md:text-4xl">{active.name}</h3>
             </div>
             {images.length > 1 && (
-              <div className="flex items-center gap-1.5">
-                <Layers className="mr-1 h-3.5 w-3.5 text-muted" />
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Layers className="mr-1 hidden h-3.5 w-3.5 text-muted sm:inline" />
                 {images.map((_, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => setViewIdx(i)}
-                    className={`border px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.2em] transition-colors ${
+                    className={`border px-2.5 py-1.5 text-[0.6rem] uppercase tracking-[0.16em] transition-colors sm:px-3 sm:text-[0.65rem] sm:tracking-[0.2em] ${
                       viewIdx === i
                         ? 'border-white bg-white text-ink font-medium'
                         : 'border-line text-muted hover:border-accent hover:text-white'
@@ -114,7 +114,7 @@ export default function DropLookbook() {
           </div>
 
           {/* Stage Image */}
-          <div className="relative my-6 aspect-[16/11] w-full overflow-hidden border border-line bg-white">
+          <div className="relative my-5 aspect-[4/3] w-full overflow-hidden border border-line bg-white sm:my-6 sm:aspect-[16/11]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${active.id}-${viewIdx}`}
@@ -128,7 +128,7 @@ export default function DropLookbook() {
                   src={currentImg}
                   alt={active.name}
                   label={active.name}
-                  className="h-full w-full object-contain p-4 md:p-6"
+                  className="h-full w-full object-contain p-3 sm:p-4 md:p-6"
                 />
               </motion.div>
             </AnimatePresence>
@@ -139,13 +139,13 @@ export default function DropLookbook() {
           </div>
 
           {/* Description + Actions */}
-          <div className="flex flex-col justify-between gap-6 border-t border-line pt-5 sm:flex-row sm:items-center">
-            <p className="max-w-md text-sm leading-relaxed text-muted">{active.description}</p>
-            <div className="flex shrink-0 gap-3">
-              <Button variant="outline" onClick={() => openQuickView(active)} className="!px-5">
+          <div className="flex flex-col justify-between gap-4 border-t border-line pt-5 sm:flex-row sm:items-center sm:gap-6">
+            <p className="max-w-md text-xs leading-relaxed text-muted sm:text-sm">{active.description}</p>
+            <div className="grid grid-cols-2 gap-2.5 sm:flex sm:shrink-0 sm:gap-3">
+              <Button variant="outline" onClick={() => openQuickView(active)} className="w-full !px-4 sm:w-auto sm:!px-5">
                 <Eye className="h-4 w-4" /> Quick Buy
               </Button>
-              <Button to={`/product/${active.slug}`} className="!px-5">
+              <Button to={`/product/${active.slug}`} className="w-full !px-4 sm:w-auto sm:!px-5">
                 Details
               </Button>
             </div>

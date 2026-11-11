@@ -17,7 +17,7 @@ export default function Layout() {
   useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-ink">
+    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-ink">
       <Navbar />
       <AnimatePresence mode="wait">
         <PageTransition key={location.pathname}>
