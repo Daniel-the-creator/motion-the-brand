@@ -1,70 +1,52 @@
-# Getting Started with Create React App
+# MOTION — Streetwear storefront
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React + Vite + Tailwind CSS + Framer Motion + React Router + Supabase.
 
-## Available Scripts
+## Run
 
-In the project directory, you can run:
+```bash
+npm install
+npm run dev
+```
 
-### `npm start`
+Works immediately in **demo mode** (seed products, data saved in your browser). Admin is at `/admin`.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Replace your branding
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+| What | Where |
+|---|---|
+| Logo | Replace `public/brand/logo.svg` (or change `LOGO_SRC` in `src/config/images.js` to e.g. `/brand/logo.png`) |
+| Hero image, promo banner, about images | Admin → **Site content** |
+| Product images | Admin → **Products** → upload (first image = main) |
+| Collection covers | Admin → **Collections** |
+| WhatsApp number, socials, contact info | `src/config/site.js` (or `VITE_WHATSAPP_NUMBER` in `.env`) — format `2348012345678` |
+| Size guide tables | `SIZE_GUIDE` in `src/data/seed.js` |
 
-### `npm test`
+## Enable Supabase (real database + secure admin)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Create a project at supabase.com.
+2. SQL Editor → run `supabase/schema.sql` (tables, Row Level Security, `motion-media` storage bucket).
+3. Authentication → Users → **Add user** (your admin email + password).
+4. Run: `insert into admin_users (user_id) select id from auth.users where email = 'you@example.com';`
+5. Copy `.env.example` to `.env` and fill `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (Project Settings → API → **anon** key).
+6. Restart `npm run dev`. Optionally add the seed products via Admin.
 
-### `npm run build`
+**Security:** only the public anon key is used in the browser. The service-role key is never needed or used. Public visitors can only read; writes/uploads require a signed-in user listed in `admin_users`, enforced by RLS on the database.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## WhatsApp checkout
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+`src/utils/whatsapp.js` builds the order message and a `https://wa.me/<number>?text=<encoded>` link. The customer reviews and sends the message themselves; no payment is claimed.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Structure
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+src/
+  config/     site.js (WhatsApp, socials), images.js (logo, placeholders)
+  context/    Catalog, Cart (localStorage), Auth, UI
+  services/   api.js (only file that talks to Supabase/demo store)
+  data/       seed.js (sample products, collections, content)
+  components/ layout, product, cart, home, admin, ui
+  pages/      Home, Shop, ProductDetails, Collections, About, Contact, Shipping, Admin
+  utils/      format.js, whatsapp.js
+supabase/schema.sql
+```
