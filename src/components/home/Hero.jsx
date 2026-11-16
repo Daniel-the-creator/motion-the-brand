@@ -187,8 +187,14 @@ export default function Hero() {
                   </motion.div>
                 </AnimatePresence>
 
-                <span className="absolute left-3 top-3 bg-ink px-2.5 py-1 text-[0.6rem] font-medium uppercase tracking-[0.22em] text-white">
-                  Featured Piece
+                <span
+                  className={`absolute left-3 top-3 px-2.5 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.22em] ${
+                    current.isBooking ? 'bg-emerald-500 text-ink' : 'bg-ink text-white'
+                  }`}
+                >
+                  {current.isBooking
+                    ? `Book Now · ${current.stock} Slots · Ends ${current.bookingDeadline || 'Dec 15'}`
+                    : 'Featured Piece'}
                 </span>
 
                 <span className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center bg-ink text-white transition-transform duration-300 group-hover:scale-110">
@@ -211,7 +217,7 @@ export default function Hero() {
                   to={`/product/${current.slug}`}
                   className="shrink-0 border border-line px-3.5 py-2 text-[0.65rem] uppercase tracking-[0.2em] hover:border-white hover:bg-white hover:text-ink transition-colors"
                 >
-                  View Piece
+                  {current.isBooking ? 'Book Slot' : 'View Piece'}
                 </Link>
               </div>
 

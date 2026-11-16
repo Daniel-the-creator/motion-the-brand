@@ -6,6 +6,9 @@ export function buildOrderMessage(items) {
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const lines = items.map((item, idx) => {
     const parts = [`${idx + 1}. ${item.name}`];
+    if (item.isBooking) {
+      parts.push(`   Type: LIMITED PRE-ORDER BOOKING (Closes ${item.bookingDeadline || 'Dec 15'})`);
+    }
     if (item.size) parts.push(`   Size: ${item.size}`);
     if (item.color) parts.push(`   Color: ${item.color}`);
     parts.push(`   Quantity: ${item.quantity}`);

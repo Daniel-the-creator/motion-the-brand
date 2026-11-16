@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowUpRight, MessageCircle, Minus, Plus, Ruler, X } from 'lucide-react';
+import { ArrowUpRight, Clock, Flame, MessageCircle, Minus, Plus, Ruler, X } from 'lucide-react';
 import { useUI } from '../../context/UIContext';
 import { useCart } from '../../context/CartContext';
-import { formatPrice } from '../../utils/format';
+import { formatPrice, getBookingState, resolveColorImage } from '../../utils/format';
 import { checkoutViaWhatsApp } from '../../utils/whatsapp';
 import SafeImage from '../ui/SafeImage';
 import Button from '../ui/Button';
@@ -37,7 +37,8 @@ export default function QuickViewModal() {
 
   if (!product) return null;
 
-  const soldOut = product.stock <= 0;
+  const booking = getBookingState(product);
+  const soldOut = product.stock <= 0 || Boolean(booking?.expired);
   const needsSize = product.sizes.length > 0;
   const needsColor = product.colors.length > 0;
   const sizeMissing = needsSize && !size;
@@ -65,6 +66,8 @@ export default function QuickViewModal() {
         color,
         quantity,
         price: product.price,
+        isBooking: Boolean(product.isBooking),
+        bookingDeadline: product.bookingDeadline || '',
       },
     ]);
   };
@@ -151,6 +154,19 @@ export default function QuickViewModal() {
                   <p className="eyebrow mb-2">MOTION // Quick View</p>
                   <h2 className="display text-3xl md:text-4xl">{product.name}</h2>
                   <p className="mt-2 text-xl text-accent">{formatPrice(product.price)}</p>
+
+                  {booking && (
+                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[0.65rem] uppercase tracking-[0.18em]">
+                      <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-300">
+                        <Flame className="h-3.5 w-3.5" />
+                        {booking.expired ? 'Booking Closed' : `Only ${booking.remainingSlots} Slots · Pre-Order`}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-white">
+                        <Clock className="h-3 w-3 text-emerald-300" /> Ends {booking.deadlineLabel} ({booking.daysLeft}d left)
+                      </span>
+                    </div>
+                  )}
+
                   <p className="mt-4 text-sm leading-relaxed text-muted">{product.description}</p>
 
                   {needsColor && (
@@ -159,25 +175,32 @@ export default function QuickViewModal() {
                         Color {color && <span className="text-muted">— {color}</span>}
                       </p>
                       <div className="flex flex-wrap gap-2.5">
-                        {product.colors.map((c) => (
-                          <button
-                            key={c.name}
-                            type="button"
-                            onClick={() => {
-                              setColor(c.name);
-                              const idx = c.image ? product.images.indexOf(c.image) : -1;
-                              if (idx >= 0) setActiveImg(idx);
-                            }}
-                            title={c.name}
-                            aria-label={c.name}
-                            className={`h-9 w-9 border transition ${
-                              color === c.name
-                                ? 'border-white ring-1 ring-white ring-offset-2 ring-offset-surface'
-                                : 'border-line hover:border-accent'
-                            }`}
-                            style={{ background: c.hex }}
-                          />
-                        ))}
+                        {product.colors.map((c, cIdx) => {
+                          const cImg = resolveColorImage(product, c, cIdx);
+                          return (
+                            <button
+                              key={c.name}
+                              type="button"
+                              onClick={() => {
+                                setColor(c.name);
+                                const idx = cImg ? images.indexOf(cImg) : -1;
+                                if (idx >= 0) {
+                                  setActiveImg(idx);
+                                } else if (images[cIdx]) {
+                                  setActiveImg(cIdx);
+                                }
+                              }}
+                              title={c.name}
+                              aria-label={c.name}
+                              className={`h-9 w-9 border transition ${
+                                color === c.name
+                                  ? 'border-white ring-1 ring-white ring-offset-2 ring-offset-surface'
+                                  : 'border-line hover:border-accent'
+                              }`}
+                              style={{ background: c.hex }}
+                            />
+                          );
+                        })}
                       </div>
                       {showErrors && colorMissing && (
                         <p className="mt-1.5 text-xs text-red-400">Please select a color.</p>
@@ -246,11 +269,18 @@ export default function QuickViewModal() {
 
                 <div className="mt-8 space-y-2.5">
                   <Button onClick={handleAdd} disabled={soldOut} className="w-full">
-                    {soldOut ? 'Sold Out' : 'Add to Bag'}
+                    {booking?.expired
+                      ? 'Booking Closed'
+                      : soldOut
+                        ? 'Sold Out'
+                        : booking
+                          ? `Book Your Slot — ${formatPrice(product.price)}`
+                          : 'Add to Bag'}
                   </Button>
                   {!soldOut && (
                     <Button variant="outline" onClick={handleDirectWhatsApp} className="w-full">
-                      <MessageCircle className="h-4 w-4" /> Instant Order on WhatsApp
+                      <MessageCircle className="h-4 w-4" />{' '}
+                      {booking ? 'Book Slot on WhatsApp' : 'Instant Order on WhatsApp'}
                     </Button>
                   )}
                   <Link

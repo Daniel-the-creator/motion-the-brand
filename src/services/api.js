@@ -10,7 +10,7 @@ import { seedProducts, seedCategories, seedCollections, seedContent } from '../d
 import { SITE } from '../config/site';
 import { slugify, uid } from '../utils/format';
 
-const LOCAL_KEY = 'motion_store_db_v5';
+const LOCAL_KEY = 'motion_store_db_v6';
 const AUTH_SESSION_KEY = 'motion_admin_session_v1';
 const AUTH_PWD_KEY = 'motion_admin_pwd_v1';
 const authListeners = new Set();
@@ -161,7 +161,7 @@ export async function saveContent(key, value) {
 }
 
 /* ---------- images ---------- */
-function compressToDataUrl(file, maxSize = 1400, quality = 0.82) {
+function compressToDataUrl(file, maxSize = 900, quality = 0.78) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error('Could not read image file.'));
@@ -173,7 +173,11 @@ function compressToDataUrl(file, maxSize = 1400, quality = 0.82) {
         const canvas = document.createElement('canvas');
         canvas.width = Math.round(image.width * scale);
         canvas.height = Math.round(image.height * scale);
-        canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+        const ctx = canvas.getContext('2d');
+        // Fill white background so transparent PNGs don't render black when exported as JPEG
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
       image.src = reader.result;

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronDown, Maximize2, MessageCircle, Minus, Plus, Ruler, X } from 'lucide-react';
+import { ChevronDown, Clock, Flame, Maximize2, MessageCircle, Minus, Plus, Ruler, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCatalog } from '../context/CatalogContext';
 import { useCart } from '../context/CartContext';
 import { useUI } from '../context/UIContext';
 import { SITE } from '../config/site';
-import { formatPrice } from '../utils/format';
+import { formatPrice, getBookingState, resolveColorImage } from '../utils/format';
 import { checkoutViaWhatsApp } from '../utils/whatsapp';
 import SafeImage from '../components/ui/SafeImage';
 import Button from '../components/ui/Button';
@@ -83,7 +83,8 @@ export default function ProductDetails() {
   }
 
   const category = categories.find((c) => c.id === product.categoryId);
-  const soldOut = product.stock <= 0;
+  const booking = getBookingState(product);
+  const soldOut = product.stock <= 0 || Boolean(booking?.expired);
   const needsSize = product.sizes.length > 0;
   const needsColor = product.colors.length > 0;
   const sizeMissing = needsSize && !size;
@@ -111,6 +112,8 @@ export default function ProductDetails() {
         color,
         quantity,
         price: product.price,
+        isBooking: Boolean(product.isBooking),
+        bookingDeadline: product.bookingDeadline || '',
       },
     ]);
   };
@@ -204,6 +207,41 @@ export default function ProductDetails() {
           </div>
           <h1 className="display mt-2 text-4xl md:text-6xl">{product.name}</h1>
           <p className="mt-4 text-2xl text-accent">{formatPrice(product.price)}</p>
+
+          {booking && (
+            <div className="mt-5 border border-emerald-500/40 bg-emerald-500/10 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 text-[0.68rem] font-bold uppercase tracking-[0.22em] text-emerald-300">
+                  <Flame className="h-3.5 w-3.5" />
+                  {booking.expired
+                    ? 'Booking Window Closed'
+                    : `Limited Pre-Order Booking · Only ${booking.remainingSlots} Slots Available`}
+                </span>
+                <span className="inline-flex items-center gap-1 text-[0.65rem] uppercase tracking-[0.2em] text-white">
+                  <Clock className="h-3.5 w-3.5 text-emerald-300" />
+                  Expires {booking.deadlineLabel}
+                </span>
+              </div>
+
+              {!booking.expired && (
+                <div className="mt-3 grid grid-cols-3 gap-2 border-t border-emerald-500/25 pt-3 text-center">
+                  <div className="bg-ink/70 py-2">
+                    <p className="display text-xl text-white">{booking.daysLeft}</p>
+                    <p className="text-[0.58rem] uppercase tracking-[0.2em] text-muted">Days Left</p>
+                  </div>
+                  <div className="bg-ink/70 py-2">
+                    <p className="display text-xl text-white">{booking.hoursLeft}</p>
+                    <p className="text-[0.58rem] uppercase tracking-[0.2em] text-muted">Hours</p>
+                  </div>
+                  <div className="bg-ink/70 py-2">
+                    <p className="display text-xl text-emerald-300">{booking.remainingSlots} / {booking.totalSlots}</p>
+                    <p className="text-[0.58rem] uppercase tracking-[0.2em] text-muted">Slots Open</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <p className="mt-6 text-sm leading-relaxed text-muted">{product.description}</p>
 
           {needsColor && (
@@ -212,26 +250,33 @@ export default function ProductDetails() {
                 Color {color && <span className="text-muted">— {color}</span>}
               </p>
               <div className="flex flex-wrap gap-3">
-                {product.colors.map((c) => (
-                  <button
-                    key={c.name}
-                    type="button"
-                    onClick={() => {
-                      setColor(c.name);
-                      const i = c.image ? product.images.indexOf(c.image) : -1;
-                      if (i >= 0) setActiveImg(i);
-                    }}
-                    aria-label={c.name}
-                    aria-pressed={color === c.name}
-                    title={c.name}
-                    className={`h-11 w-11 border transition ${
-                      color === c.name
-                        ? 'border-white ring-1 ring-white ring-offset-2 ring-offset-ink'
-                        : 'border-line hover:border-accent'
-                    }`}
-                    style={{ background: c.hex }}
-                  />
-                ))}
+                {product.colors.map((c, cIdx) => {
+                  const cImg = resolveColorImage(product, c, cIdx);
+                  return (
+                    <button
+                      key={c.name}
+                      type="button"
+                      onClick={() => {
+                        setColor(c.name);
+                        const i = cImg ? images.indexOf(cImg) : -1;
+                        if (i >= 0) {
+                          setActiveImg(i);
+                        } else if (images[cIdx]) {
+                          setActiveImg(cIdx);
+                        }
+                      }}
+                      aria-label={c.name}
+                      aria-pressed={color === c.name}
+                      title={c.name}
+                      className={`h-11 w-11 border transition ${
+                        color === c.name
+                          ? 'border-white ring-1 ring-white ring-offset-2 ring-offset-ink'
+                          : 'border-line hover:border-accent'
+                      }`}
+                      style={{ background: c.hex }}
+                    />
+                  );
+                })}
               </div>
               {showErrors && colorMissing && (
                 <p className="mt-2 text-xs text-red-400" role="alert">
@@ -315,11 +360,18 @@ export default function ProductDetails() {
 
           <div className="mt-8 space-y-3">
             <Button onClick={handleAdd} disabled={soldOut} className="w-full">
-              {soldOut ? 'Sold out' : 'Add to bag'}
+              {booking?.expired
+                ? 'Booking Closed'
+                : soldOut
+                  ? 'Sold out'
+                  : booking
+                    ? `Book Your Slot — ${formatPrice(product.price)}`
+                    : 'Add to bag'}
             </Button>
             {!soldOut && (
               <Button variant="outline" onClick={handleInstantWhatsApp} className="w-full">
-                <MessageCircle className="h-4 w-4" /> Instant Order via WhatsApp
+                <MessageCircle className="h-4 w-4" />{' '}
+                {booking ? 'Book Slot Instantly via WhatsApp' : 'Instant Order via WhatsApp'}
               </Button>
             )}
           </div>

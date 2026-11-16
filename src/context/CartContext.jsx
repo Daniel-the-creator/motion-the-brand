@@ -34,6 +34,8 @@ export function CartProvider({ children }) {
         key, productId: product.id, slug: product.slug, name: product.name, price: product.price,
         image: product.images?.[0] || '', sizes: product.sizes || [], colors: product.colors || [],
         size, color, quantity: Math.min(quantity, max), maxStock: max,
+        isBooking: Boolean(product.isBooking),
+        bookingDeadline: product.bookingDeadline || '',
       }];
     });
     if (openDrawer) setIsOpen(true);

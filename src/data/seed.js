@@ -34,6 +34,29 @@ const ago = (d) => new Date(now - d * day).toISOString();
 const tee = (o) => ({ categoryId: 'cat-tshirts', sizes: SIZES_APPAREL, isNew: false, ...o });
 
 export const seedProducts = [
+  // --- LIMITED HOLIDAY BOOKING RELEASE ---
+  tee({
+    id: 'p-decembizzy',
+    name: 'MOTION Decembizzy "Let\'s Party" Tee',
+    slug: 'motion-decembizzy-tee',
+    description:
+      'Limited Holiday Pre-Order Edition. Features the custom "DECEMBIZZY" headline graphic, festive Grinch "LET\'S PARTY" artwork wrapped in lights, and the official MOTION emblem stamp at the lower hem. Strictly limited to 15 booking slots — booking closes December 15th.',
+    price: 17000,
+    images: [P('decembizzy-black'), P('decembizzy-white')],
+    colors: [
+      withImage(BLACK, 'decembizzy-black'),
+      withImage(WHITE, 'decembizzy-white'),
+    ],
+    stock: 15,
+    isNew: true,
+    isBooking: true,
+    bookingSlots: 15,
+    bookingDeadline: 'December 15',
+    bookingEndsAt: '2026-12-15T23:59:59',
+    collectionIds: ['col-drop001', 'col-street'],
+    createdAt: ago(0.05),
+  }),
+
   // --- DROP 001 COLLECTION (Official MOTION logo & graphic releases) ---
   tee({
     id: 'p-d1',

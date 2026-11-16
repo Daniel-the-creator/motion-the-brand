@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, Plus, X } from 'lucide-react';
 import SafeImage from '../ui/SafeImage';
-import { formatPrice } from '../../utils/format';
+import { formatPrice, getBookingState, resolveColorImage } from '../../utils/format';
 import { useCart } from '../../context/CartContext';
 import { useUI } from '../../context/UIContext';
 
@@ -15,7 +15,8 @@ export default function ProductCard({ product, index = 0 }) {
   const [color, setColor] = useState(null);
   const [previewImg, setPreviewImg] = useState(null);
 
-  const soldOut = product.stock <= 0;
+  const booking = getBookingState(product);
+  const soldOut = product.stock <= 0 || Boolean(booking?.expired);
   const needsSize = product.sizes.length > 0;
   const needsColor = product.colors.length > 0;
   const autoSize = product.sizes.length === 1 ? product.sizes[0] : null;
@@ -24,7 +25,7 @@ export default function ProductCard({ product, index = 0 }) {
 
   const commit = (s, c) => {
     addItem(product, { size: s, color: c, quantity: 1 }, { openDrawer: false });
-    toast(`${product.name} added to bag`);
+    toast(booking ? `${product.name} slot added to bag` : `${product.name} added to bag`);
     setPicking(false);
     setSize(null);
     setColor(null);
@@ -70,15 +71,25 @@ export default function ProductCard({ product, index = 0 }) {
         </Link>
 
         {/* Top-left badges */}
-        <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-col gap-1.5">
-          {product.isNew && !soldOut && (
+        <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-col items-start gap-1.5">
+          {booking && !soldOut && (
+            <>
+              <span className="bg-emerald-500 px-2.5 py-1 text-[0.56rem] font-bold uppercase tracking-[0.2em] text-ink">
+                Book Now · {booking.remainingSlots} Slots
+              </span>
+              <span className="border border-line bg-ink/90 px-2 py-0.5 text-[0.52rem] uppercase tracking-[0.18em] text-white">
+                Ends {booking.deadlineLabel}
+              </span>
+            </>
+          )}
+          {!booking && product.isNew && !soldOut && (
             <span className="bg-ink px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.22em] text-white">
               Drop 001
             </span>
           )}
           {soldOut && (
             <span className="border border-line bg-ink/90 px-2.5 py-1 text-[0.58rem] uppercase tracking-[0.2em] text-muted">
-              Sold Out
+              {booking?.expired ? 'Booking Closed' : 'Sold Out'}
             </span>
           )}
         </div>
@@ -136,19 +147,25 @@ export default function ProductCard({ product, index = 0 }) {
                 <div>
                   <p className="eyebrow mb-2">Color{color ? ` — ${color}` : ''}</p>
                   <div className="flex flex-wrap gap-2">
-                    {product.colors.map((c) => (
-                      <button
-                        key={c.name}
-                        type="button"
-                        title={c.name}
-                        aria-label={c.name}
-                        onClick={() => setColor(c.name)}
-                        className={`h-8 w-8 border ${
-                          color === c.name ? 'border-white ring-1 ring-white ring-offset-2 ring-offset-ink' : 'border-line'
-                        }`}
-                        style={{ background: c.hex }}
-                      />
-                    ))}
+                    {product.colors.map((c, cIdx) => {
+                      const cImg = resolveColorImage(product, c, cIdx);
+                      return (
+                        <button
+                          key={c.name}
+                          type="button"
+                          title={c.name}
+                          aria-label={c.name}
+                          onClick={() => {
+                            setColor(c.name);
+                            if (cImg) setPreviewImg(cImg);
+                          }}
+                          className={`h-8 w-8 border ${
+                            color === c.name ? 'border-white ring-1 ring-white ring-offset-2 ring-offset-ink' : 'border-line'
+                          }`}
+                          style={{ background: c.hex }}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -199,16 +216,17 @@ export default function ProductCard({ product, index = 0 }) {
         <div className="flex items-center justify-between gap-2 pt-0.5">
           {product.colors.length > 0 && (
             <div className="flex items-center gap-1.5" aria-label="Available colors">
-              {product.colors.map((c) => {
-                const isSelected = previewImg && c.image === previewImg;
+              {product.colors.map((c, cIdx) => {
+                const cImg = resolveColorImage(product, c, cIdx);
+                const isSelected = previewImg ? cImg === previewImg : cIdx === 0;
                 return (
                   <button
                     key={c.name}
                     type="button"
                     title={c.name}
                     aria-label={`Preview ${c.name}`}
-                    onMouseEnter={() => c.image && setPreviewImg(c.image)}
-                    onClick={() => c.image && setPreviewImg(previewImg === c.image ? null : c.image)}
+                    onMouseEnter={() => cImg && setPreviewImg(cImg)}
+                    onClick={() => cImg && setPreviewImg(cImg)}
                     className={`h-3.5 w-3.5 border transition ${
                       isSelected ? 'border-white scale-110 ring-1 ring-white' : 'border-line hover:border-white'
                     }`}
