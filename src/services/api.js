@@ -10,7 +10,7 @@ import { seedProducts, seedCategories, seedCollections, seedContent } from '../d
 import { SITE } from '../config/site';
 import { slugify, uid } from '../utils/format';
 
-const LOCAL_KEY = 'motion_store_db_v6';
+const LOCAL_KEY = 'motion_store_db_v7';
 const AUTH_SESSION_KEY = 'motion_admin_session_v1';
 const AUTH_PWD_KEY = 'motion_admin_pwd_v1';
 const authListeners = new Set();
@@ -236,30 +236,34 @@ export async function signIn(email, password) {
     throw new Error('Please enter both your admin email and password.');
   }
 
+  // Always try local admin check first — this lets the owner sign in even when
+  // Supabase env vars are present but no Supabase user account was created.
+  const isAllowedEmail = SITE.admin.emails.includes(normalizedEmail);
+  const expectedPassword = getExpectedPassword();
+
+  if (isAllowedEmail) {
+    if (cleanPassword !== expectedPassword && password !== expectedPassword) {
+      throw new Error('Incorrect admin password.');
+    }
+    const sessionUser = {
+      id: 'admin-local',
+      email: normalizedEmail,
+      role: 'admin',
+      signedInAt: new Date().toISOString(),
+    };
+    sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(sessionUser));
+    notifyAuth(sessionUser);
+    return sessionUser;
+  }
+
+  // Fall back to Supabase auth for non-admin emails (future staff accounts)
   if (isSupabaseConfigured) {
     const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password: cleanPassword });
     if (error) throw new Error(error.message);
     return data.user;
   }
 
-  const isAllowedEmail = SITE.admin.emails.includes(normalizedEmail);
-  const expectedPassword = getExpectedPassword();
-  if (!isAllowedEmail) {
-    throw new Error('This email is not registered as an administrator.');
-  }
-  if (cleanPassword !== expectedPassword && password !== expectedPassword) {
-    throw new Error('Incorrect admin password.');
-  }
-
-  const sessionUser = {
-    id: 'admin-local',
-    email: normalizedEmail,
-    role: 'admin',
-    signedInAt: new Date().toISOString(),
-  };
-  sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(sessionUser));
-  notifyAuth(sessionUser);
-  return sessionUser;
+  throw new Error('This email is not registered as an administrator.');
 }
 
 export async function signOut() {

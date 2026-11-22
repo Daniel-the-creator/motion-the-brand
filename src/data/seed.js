@@ -34,6 +34,22 @@ const ago = (d) => new Date(now - d * day).toISOString();
 const tee = (o) => ({ categoryId: 'cat-tshirts', sizes: SIZES_APPAREL, isNew: false, ...o });
 
 export const seedProducts = [
+  // --- MOTION BELIEVE TEE ---
+  tee({
+    id: 'p-believe',
+    name: 'MOTION "For Those Who Believe" Tee',
+    slug: 'motion-for-those-who-believe-tee',
+    description:
+      'Heavyweight oversized tee featuring a crowned cross with lightning-strike artwork and the declaration "MOTION IS FOR THOSE WHO BELIEVE!!" — a statement piece for those who move with conviction. MOTION emblem stamp at the lower hem.',
+    price: 15000,
+    images: [P('motion-believe-white', 'png')],
+    colors: [withImage(WHITE, 'motion-believe-white', 'png')],
+    stock: 30,
+    isNew: true,
+    collectionIds: ['col-essentials', 'col-drop001'],
+    createdAt: ago(0.08),
+  }),
+
   // --- LIMITED HOLIDAY BOOKING RELEASE ---
   tee({
     id: 'p-decembizzy',
