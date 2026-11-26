@@ -60,6 +60,16 @@ alter table site_content enable row level security;
 alter table newsletter_subscribers enable row level security;
 alter table admin_users enable row level security;
 
+-- Grant access to standard Supabase roles so RLS policies can take effect
+grant usage on schema public to anon, authenticated, service_role;
+grant all privileges on all tables in schema public to anon, authenticated, service_role;
+grant all privileges on all sequences in schema public to anon, authenticated, service_role;
+grant all privileges on all routines in schema public to anon, authenticated, service_role;
+
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema public grant all on routines to anon, authenticated, service_role;
+
 -- public read
 create policy "public read categories" on categories for select using (true);
 create policy "public read collections" on collections for select using (true);

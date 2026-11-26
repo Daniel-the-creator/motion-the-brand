@@ -209,14 +209,14 @@ export default function Admin() {
           <button
             type="button"
             onClick={async () => {
-              if (window.confirm('Reset catalog back to the default DROP 001 products?')) {
+              if (window.confirm('Sync all default products, categories and collections to Supabase?')) {
                 await resetDemoData();
                 window.location.reload();
               }
             }}
             className="flex items-center gap-1.5 text-muted hover:text-white"
           >
-            <RotateCcw className="h-3.5 w-3.5" /> Reset default catalog
+            <RotateCcw className="h-3.5 w-3.5" /> Sync default products to database
           </button>
           <button
             type="button"

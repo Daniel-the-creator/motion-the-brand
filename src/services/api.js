@@ -69,10 +69,16 @@ export async function fetchCatalog() {
   [p, c, col, content].forEach(assertOk);
   const contentMap = { ...seedContent };
   (content.data || []).forEach((row) => { contentMap[row.key] = { ...seedContent[row.key], ...row.value }; });
+
+  // If Supabase tables are fresh/empty, fallback to seed data so store never appears blank
+  const products = (p.data && p.data.length > 0) ? p.data.map(productFromRow) : seedProducts;
+  const categories = (c.data && c.data.length > 0) ? c.data.map(categoryFromRow) : seedCategories;
+  const collections = (col.data && col.data.length > 0) ? col.data.map(collectionFromRow) : seedCollections;
+
   return {
-    products: p.data.map(productFromRow),
-    categories: c.data.map(categoryFromRow),
-    collections: col.data.map(collectionFromRow),
+    products,
+    categories,
+    collections,
     content: contentMap,
   };
 }
@@ -216,8 +222,28 @@ export async function fetchSubscribers() {
   return data;
 }
 
+export async function seedSupabaseData() {
+  if (!isSupabaseConfigured) return;
+  // Upsert categories
+  for (const cat of seedCategories) {
+    await supabase.from('categories').upsert(categoryToRow(cat));
+  }
+  // Upsert collections
+  for (const col of seedCollections) {
+    await supabase.from('collections').upsert(collectionToRow(col));
+  }
+  // Upsert products
+  for (const prod of seedProducts) {
+    await supabase.from('products').upsert(productToRow(prod));
+  }
+}
+
 export async function resetDemoData() {
-  if (!isSupabaseConfigured) localStorage.removeItem(LOCAL_KEY);
+  if (!isSupabaseConfigured) {
+    localStorage.removeItem(LOCAL_KEY);
+  } else {
+    await seedSupabaseData();
+  }
 }
 
 /* ---------- auth ---------- */
@@ -236,8 +262,18 @@ export async function signIn(email, password) {
     throw new Error('Please enter both your admin email and password.');
   }
 
-  // Always try local admin check first — this lets the owner sign in even when
-  // Supabase env vars are present but no Supabase user account was created.
+  // 1. Try Supabase Auth first when configured
+  if (isSupabaseConfigured) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password: cleanPassword,
+    });
+    if (!error && data?.user) {
+      return data.user;
+    }
+  }
+
+  // 2. Local admin check fallback
   const isAllowedEmail = SITE.admin.emails.includes(normalizedEmail);
   const expectedPassword = getExpectedPassword();
 
@@ -256,14 +292,7 @@ export async function signIn(email, password) {
     return sessionUser;
   }
 
-  // Fall back to Supabase auth for non-admin emails (future staff accounts)
-  if (isSupabaseConfigured) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password: cleanPassword });
-    if (error) throw new Error(error.message);
-    return data.user;
-  }
-
-  throw new Error('This email is not registered as an administrator.');
+  throw new Error('Incorrect admin email or password.');
 }
 
 export async function signOut() {
