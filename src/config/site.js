@@ -21,7 +21,7 @@ export const SITE = {
   social: {
     instagram: 'https://instagram.com/that_boy_diles',
     tiktok: 'https://tiktok.com/@that_boy_diles',
-    snapchat: 'https://snapchat.com/add/that_boy_diles',
+    snapchat: 'https://snapchat.com/add/diles_22',
   },
 
   // Show a "low stock" hint at or below this number

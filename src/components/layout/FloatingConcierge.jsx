@@ -110,7 +110,7 @@ export default function FloatingConcierge() {
                     <p className="text-xs font-semibold tracking-wider text-white group-hover:text-yellow-200">
                       Snapchat Concierge
                     </p>
-                    <p className="text-[0.65rem] text-muted">@that_boy_diles</p>
+                    <p className="text-[0.65rem] text-muted">@diles_22</p>
                   </div>
                 </div>
                 <span className="text-[0.6rem] uppercase tracking-widest text-yellow-300 opacity-80 group-hover:opacity-100">
