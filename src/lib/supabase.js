@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const url = import.meta.env.VITE_SUPABASE_URL;
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const url = import.meta.env.VITE_SUPABASE_URL || 'https://ubdnxxkbgpisgigadcnk.supabase.co';
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_pnn1dvMyvAiuBFFtXSXWfA_QuXqZ2hf';
 
 /** True when Supabase env vars are present. Otherwise the app runs in local demo mode. */
 export const isSupabaseConfigured = Boolean(url && anonKey);
