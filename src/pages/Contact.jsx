@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { Ghost, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { SITE } from '../config/site';
 import { buildWhatsAppUrl } from '../utils/whatsapp';
 import Button from '../components/ui/Button';
@@ -25,6 +25,8 @@ export default function Contact() {
         <ul className="space-y-6 text-sm">
           <li className="flex items-center gap-4"><Mail className="h-5 w-5 text-muted" /><a href={`mailto:${SITE.contact.email}`} className="hover:text-accent">{SITE.contact.email}</a></li>
           <li className="flex items-center gap-4"><Phone className="h-5 w-5 text-muted" /><a href={`tel:${SITE.contact.phone.replace(/\s/g, '')}`} className="hover:text-accent">{SITE.contact.phone}</a></li>
+          <li className="flex items-center gap-4"><MessageCircle className="h-5 w-5 text-emerald-400" /><a href={buildWhatsAppUrl('Hello MOTION, I have an inquiry.')} target="_blank" rel="noopener noreferrer" className="hover:text-accent">WhatsApp Concierge (24/7)</a></li>
+          <li className="flex items-center gap-4"><Ghost className="h-5 w-5 text-yellow-300" /><a href={SITE.social.snapchat} target="_blank" rel="noopener noreferrer" className="hover:text-accent">Snapchat Concierge (@that_boy_diles)</a></li>
           <li className="flex items-center gap-4"><MapPin className="h-5 w-5 text-muted" />{SITE.contact.address}</li>
         </ul>
         <form onSubmit={submit} className="space-y-4" noValidate>

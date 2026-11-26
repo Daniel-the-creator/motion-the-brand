@@ -44,6 +44,7 @@ export default function Footer() {
               <ul className="space-y-3">
                 <li><a href={SITE.social.instagram} target="_blank" rel="noopener noreferrer" className={linkCls}>Instagram</a></li>
                 <li><a href={SITE.social.tiktok} target="_blank" rel="noopener noreferrer" className={linkCls}>TikTok</a></li>
+                <li><a href={SITE.social.snapchat} target="_blank" rel="noopener noreferrer" className={linkCls}>Snapchat</a></li>
                 <li><a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className={linkCls}>WhatsApp</a></li>
               </ul>
             </div>

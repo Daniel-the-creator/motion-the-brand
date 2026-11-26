@@ -140,7 +140,7 @@ export default function Hero() {
             </div>
             <div className="min-w-0">
               <p className="display text-xl sm:text-2xl md:text-3xl">24/7</p>
-              <p className="mt-1 text-[0.58rem] uppercase tracking-[0.14em] text-muted sm:text-[0.65rem] sm:tracking-[0.2em]">WhatsApp Concierge</p>
+              <p className="mt-1 text-[0.58rem] uppercase tracking-[0.14em] text-muted sm:text-[0.65rem] sm:tracking-[0.2em]">VIP Concierge</p>
             </div>
           </motion.div>
         </div>
